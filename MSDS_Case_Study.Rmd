@@ -43,6 +43,7 @@ breweries = read.csv(choose.files())
 head(beers)
 head(breweries)
 
+
 ```
 
 # How many breweries are present in each state?
@@ -51,13 +52,12 @@ head(breweries)
 
 #Use the breweries dataset to calculate the number of breweries present in each State.
 #This data will be stored in the variable "totals."
-totals = count(new_breweries, State)
+totals = count(breweries, State)
 
 #Rename the column n to a recognizable name.
 colnames(totals)[2] ="Count"
 
 #Here I'm using the totals variable to display the number of breweries per State.
-
 totals %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "black", fill = "brown" )+
   xlab("States")  + ylab("Number of Breweries")+
@@ -67,53 +67,49 @@ totals %>% ggplot(mapping = aes(x = State, y = Count)) +
 
 #Would be cool to do this using the US Map
 colnames(breweries)[4] = "abb"
-new_breweries = merge(breweries,lookup, by = "abb", all = TRUE)
-
-totals$region <- tolower(totals$State)
 breweries$abb = trimws(breweries$abb)
+breweries
+lookup = data.frame(abb = state.abb, State = state.name)
+lookup
+new_breweries = merge(breweries,lookup, by = "abb", all = TRUE)
+new_breweries
+totals = count(new_breweries, State)
+na.omit(new_breweries)
+totals$region <- tolower(totals$State)
+totals
+colnames(totals)[2] = "count"
 totals2 = totals[-1]
+totals2
 states <- map_data("state")
-map.df <- merge(states,totals2, by="region", all.x=T)
+states
+states2 = states[-6]
+states2
+map.df <- merge(states2,totals2, by ="region", all.x = TRUE)
+map.df
 map.df <- map.df[order(map.df$order),]
 
 
 
-#Non functioning code
-# heatMap = map.df %>% group_by(group, region) %>% summarize(total = count(Count)) %>%
-#   ggplot(mapping = aes(x=long,y=lat, group = group))+
-#   geom_polygon(aes(fill= Count))+
-#   geom_path()+
-#   geom_text(aes(x=long, y=lat,label= total), data=map.df, col="black", cex=3)+
-#   scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90")+
-#   ggtitle("Breweries per State")+
-#   coord_map()
-# 
-# ggplotly(heatMap)
-
-
 #Functioning Code but it's not correct
-heatMap =  ggplot(map.df, aes(x=long,y=lat, group = group))+
-  geom_polygon(aes(fill= Count))+
-  geom_text(aes(x=long, y=lat, label = Count), data=map.df, col="black", cex=3)+
+heatMap = ggplot(map.df, aes(x=long,y=lat, group = group))+
+  geom_polygon(aes(fill= count))+
+  #geom_text(aes(x=long, y=lat, label = map.df$count+75), data=map.df, col="black", cex=3)+
   scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90")+
-  ggtitle("Breweries per State")+
+  ggtitle("Number of Breweries per State")+
   coord_map()+
-  geom_path()
+  geom_path()+
+  xlab("Longitute") + ylab("Latitude")+
+  theme_economist()
 ggplotly(heatMap)
 
-
-#install.packages("doBy")
-# library(doBy)
-txtVal <- summaryBy(long + lat + NULL~id, data=map.df, FUN=mean, keep.names=T)
-# m3 <- m2 + geom_text(aes(x=long, y=lat, label=Value), data=txtVal, col="yellow", cex=3)
-
-?summaryBy
 ```
 
 
 # MergeMerge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
 
 ```{r}
+#Reload the data to prevent issues.
+
 beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
 
 head(beers_Breweries)
@@ -191,7 +187,7 @@ summary(beersNbreweries$ABV)
 
 ```{r}
 
-beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, jitter = ABV, color = State)) +
+beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, ABV ="jitter", color = State)) +
   geom_point()
 
 
