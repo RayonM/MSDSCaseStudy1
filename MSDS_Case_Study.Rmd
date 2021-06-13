@@ -107,12 +107,16 @@ ggplotly(heatMap)
 ```
 
 
-# MergeMerge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
+# Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
 
 ```{r}
 #Note: Reload the data to prevent issues due to above manipulation for HeatMap
 
 beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
+
+beers_Breweries
+
+write.csv(beers_Breweries, "missingdataincluded.csv")
 
 head(beers_Breweries)
 tail(beers_Breweries)
@@ -121,11 +125,13 @@ tail(beers_Breweries)
 colnames(beers_Breweries)[2] = "Beer_Name"
 colnames(beers_Breweries)[8] = "Brewery_Name"
 
-#Remove all 
+#The following columns had NA values/missing data: ABV, IBU, and Styles(these were blank and Not N/A). To Tidy the data, we excluded those values from the dataset. We do not have a way to find those data points at this time. 
 beersNbreweries = na.omit(beers_Breweries)
+
 Sums = count(beersNbreweries, State)
 colnames(Sums)[2] = "Count"
 
+#Doesn't seem like it's need for the question 2. May strip out in final presentation.
 beersNbreweries %>% ggplot(mapping = aes(x = State)) +
   geom_bar(color = "black", fill = "brown" )+
   xlab("States")  + ylab("Number of Breweries")+
@@ -139,25 +145,44 @@ beersNbreweries %>% ggplot(mapping = aes(x = State)) +
 
 ```{r}
 
-ABV_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) %>%
-  ggplot(mapping = aes(y = ABV_State_median, x = State, stroke = 3))+
-  geom_point(color = "brown", fill = "black")+
-  theme_excel()+
-  ggtitle("Mean Alcohol Content per State") + xlab("STATES") + ylab ("ABV Mean")
-  ggplotly(ABV_State_Median_Plot)
+#Compute the median the ABV (alcohol content)
+ABV_Median_State = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV))
+ABV_Median_State
 
-##g1 = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) # Throw away code
-##write.csv(g1, "ABV_mean.csv") # Throw away code
+#Plot a bar chart
+ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_State_median )) +
+  geom_bar(stat = "identity")+
+  theme_wsj()+
+  ggtitle("Median Alcohol Content per State") + xlab("STATES") + ylab ("ABV Mean")
 
-##g2 = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU)) # Throw away code
-##write.csv(g2, "IBU_mean.csv") # Throw away code
+#Possibly throw away code
+# ABV_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) %>%
+#   ggplot(mapping = aes(y = ABV_State_median, x = State, stroke = 3))+
+#   geom_point()+
+#   theme_excel()+
+#   ggtitle("Median Alcohol Content per State") + xlab("STATES") + ylab ("ABV Mean")
+#   ggplotly(ABV_State_Median_Plot)
 
-IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU)) %>%
-  ggplot(mapping = aes(y = IBU_State_median, x = State, stroke = 3))+
-  geom_point(color = "brown", fill = "black")+
-  theme_excel()+
-  ggtitle("Mean Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
-  ggplotly(IBU_State_Median_Plot)
+  
+#Compute the median IBU (International bitterness Unit)
+IBU_Median_State = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU))
+IBU_Median_State
+
+#Plot a bar chart
+
+  IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_State_median )) +
+  geom_bar(stat = "identity")+
+  theme_wsj()+
+  ggtitle("Median Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
+  
+
+# Possibly throw away code
+# IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU)) %>%
+#   ggplot(mapping = aes(y = IBU_State_median, x = State, stroke = 3))+
+#   geom_point(color = "brown", fill = "black")+
+#   theme_excel()+
+#   ggtitle("Median Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
+#   ggplotly(IBU_State_Median_Plot)
 
 ```
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
@@ -168,7 +193,7 @@ beersNbreweries %>% summarize(Max_ABV = max(ABV)) %>% arrange(Max_ABV, by_group 
 
 beersNbreweries %>% summarize(Max_IBU = max(IBU)) %>% arrange(Max_IBU, by_group = TRUE)
 
-?which
+
 ```
 
 # Comment on the summary statistics and distribution of the ABV variable.
@@ -189,13 +214,14 @@ summary(beersNbreweries$ABV)
 
 ```{r}
 
-beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, ABV ="jitter", color = State)) +
-  geom_point()
+beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, ABV ="jitter", stroke = 1)) +
+  geom_point(color = "brown")+
+  theme_economist()+
+  xlab("ABV") + ylab("IBU")+
+  ggtitle("Relationship between bitterness and Alcohol content")
 
 
 beersNbreweries %>% select(ABV, IBU) %>% ggpairs(aes())
-
-  
 
 
 ```
