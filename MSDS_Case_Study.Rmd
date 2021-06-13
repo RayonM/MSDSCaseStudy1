@@ -30,6 +30,9 @@ beers = read.csv(choose.files())
 #Load breweries data
 breweries = read.csv(choose.files())
 
+beers
+
+
 ```
 
 # How many breweries are present in each state?
@@ -88,11 +91,11 @@ ABV_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(ABV_St
   ggplotly(ABV_State_Median_Plot)
 
 
-g1 = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) # Throw away code
-write.csv(g1, "ABV_mean.csv") # Throw away code
+##g1 = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) # Throw away code
+##write.csv(g1, "ABV_mean.csv") # Throw away code
 
-g2 = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU))
-write.csv(g2, "IBU_mean.csv")
+##g2 = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU)) # Throw away code
+##write.csv(g2, "IBU_mean.csv") # Throw away code
 
 IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU)) %>%
   ggplot(mapping = aes(y = IBU_State_median, x = State, stroke = 3))+
@@ -101,10 +104,23 @@ IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_St
   ggtitle("Mean Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
   ggplotly(IBU_State_Median_Plot)
 
+  
+#Test
+  
+  # Failed beersNbreweries$Mean_ABV = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV))
+
+    
 ```
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
 
 ```{r}
+
+beersNbreweries %>% summarize(Max_ABV = max(ABV)) %>% arrange(Max_ABV, by_group = TRUE)
+
+beersNbreweries %>% summarize(Max_IBU = max(IBU)) %>% arrange(Max_IBU, by_group = TRUE)
+
+
+
 
 ```
 
@@ -112,7 +128,17 @@ IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_St
 
 ```{r}
 
-````
+beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
+geom_histogram()
+
+beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
+geom_boxplot()
+
+
+
+summary(beersNbreweries$ABV)
+
+```
 
 # Is there an apparent relationship between the bitterness of the beer and its alcoholic content? Draw a scatter plot.  Make your best judgment of a relationship and EXPLAIN your answer
 
