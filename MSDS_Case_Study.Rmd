@@ -10,7 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Install all needed R libraries and packages.
+# Introduction
+
+Good day Mr. CEO & CFO. I'd like to thank you for accepting my invitation. Today, I'd like to address the questions you recently posed during our last Steering Committee meeting and provide you with a brief analysis that may peak your interest. This research was done using the Beer and Breweries data provided. 
 
 
 ```{r}
@@ -29,15 +31,17 @@ library(mapproj)
 
 ```
 
-#load the data
+#Cookbook
 
 ```{r}
 
-#Load beers data
+# #Load beers data
 beers = read.csv(choose.files())
-
-#Load breweries data
+# 
+# #Load breweries data
 breweries = read.csv(choose.files())
+
+
 
 #Quick look at the dataframe for both datasets.
 head(beers)
@@ -88,18 +92,16 @@ map.df <- merge(states2,totals2, by ="region", all.x = TRUE)
 map.df
 map.df <- map.df[order(map.df$order),]
 
-
-
 #Functioning Code but it's not correct
 heatMap = ggplot(map.df, aes(x=long,y=lat, group = group))+
   geom_polygon(aes(fill= count))+
   #geom_text(aes(x=long, y=lat, label = map.df$count+75), data=map.df, col="black", cex=3)+
   scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90")+
-  ggtitle("Number of Breweries per State")+
+  ggtitle("Breweries per State")+
   coord_map()+
   geom_path()+
   xlab("Longitute") + ylab("Latitude")+
-  theme_economist()
+  theme_fivethirtyeight()
 ggplotly(heatMap)
 
 ```
@@ -108,18 +110,18 @@ ggplotly(heatMap)
 # MergeMerge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
 
 ```{r}
-#Reload the data to prevent issues.
+#Note: Reload the data to prevent issues due to above manipulation for HeatMap
 
 beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
 
 head(beers_Breweries)
 tail(beers_Breweries)
 
-
+#Rename the columns Name.x and Name.y to be more meaningful names.
 colnames(beers_Breweries)[2] = "Beer_Name"
 colnames(beers_Breweries)[8] = "Brewery_Name"
 
-
+#Remove all 
 beersNbreweries = na.omit(beers_Breweries)
 Sums = count(beersNbreweries, State)
 colnames(Sums)[2] = "Count"
