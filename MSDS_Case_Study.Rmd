@@ -17,20 +17,19 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggthemes)
 library(ggplot2)
-
+library(plotly)
 
 ```
 
 #load the data
 
 ```{r}
+#Load beers data
 beers = read.csv(choose.files())
 
+#Load breweries data
 breweries = read.csv(choose.files())
 
-beers
-
-str(beers)
 ```
 
 # How many breweries are present in each state?
@@ -46,6 +45,11 @@ totals %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_text(aes(State, Count+9, label = Count), data = totals)+
   ggtitle("Breweries per State")+
   theme_fivethirtyeight()
+
+breweries
+
+
+
 
 ```
 
@@ -76,6 +80,26 @@ beersNbreweries %>% ggplot(mapping = aes(x = State)) +
 
 ```{r}
 
+ABV_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) %>%
+  ggplot(mapping = aes(y = ABV_State_median, x = State, stroke = 3))+
+  geom_point(color = "brown", fill = "black")+
+  theme_excel()+
+  ggtitle("Mean Alcohol Content per State") + xlab("STATES") + ylab ("ABV Mean")
+  ggplotly(ABV_State_Median_Plot)
+
+
+g1 = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) # Throw away code
+write.csv(g1, "ABV_mean.csv") # Throw away code
+
+g2 = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU))
+write.csv(g2, "IBU_mean.csv")
+
+IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_State_median = median(IBU)) %>%
+  ggplot(mapping = aes(y = IBU_State_median, x = State, stroke = 3))+
+  geom_point(color = "brown", fill = "black")+
+  theme_excel()+
+  ggtitle("Mean Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
+  ggplotly(IBU_State_Median_Plot)
 
 ```
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
