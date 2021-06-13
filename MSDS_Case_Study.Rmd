@@ -64,9 +64,10 @@ colnames(breweries_Count_State)[2] ="Count"
 breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "black", fill = "red" )+
   xlab("States")  + ylab("Count of Breweries")+
-  geom_text(aes(State, Count+2, label = Count), data = breweries_Count_State)+
+  geom_text(aes(State, Count+1, label = Count), data = breweries_Count_State, col="blue")+
   ggtitle("Breweries per State")+
-  theme_fivethirtyeight()
+  theme_wsj()
+?geom_text
 
 #Would be cool to do this using the US Map
 colnames(breweries)[4] = "abb"
@@ -94,13 +95,13 @@ map.df <- map.df[order(map.df$order),]
 #Functioning Code but it's not correct
 heatMap = ggplot(map.df, aes(x=long,y=lat, group = group))+
   geom_polygon(aes(fill= count))+
-  #geom_text(aes(x=long, y=lat, label = map.df$count+75), data=map.df, col="black", cex=3)+
+  geom_text(aes(x=long, y=lat, label = map.df$count), col="black", cex=3)+
   scale_fill_gradientn(colours=rev(heat.colors(5)),na.value="black")+
   ggtitle("Breweries per State")+
   coord_map()+
   geom_path()+
   xlab("Longitute") + ylab("Latitude")+
-  theme_fivethirtyeight()
+  theme_wsj()
 ggplotly(heatMap)
 
 ```
