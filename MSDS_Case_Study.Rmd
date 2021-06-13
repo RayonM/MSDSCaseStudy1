@@ -36,10 +36,10 @@ library(mapproj)
 ```{r}
 
 # #Load beers data
-beers = read.csv(choose.files())
+beers = read.csv(file.choose())
 # 
 # #Load breweries data
-breweries = read.csv(choose.files())
+breweries = read.csv(file.choose())
 
 #Quick look at the dataframe for both datasets.
 head(beers)
@@ -54,16 +54,17 @@ head(breweries)
 
 #Use the breweries dataset to calculate the number of breweries present in each State.
 #This data will be stored in the variable "totals."
-totals = count(breweries, State)
+breweries_Count_State = count(breweries, State)
+
 
 #Rename the column n to a recognizable name.
-colnames(totals)[2] ="Count"
+colnames(breweries_Count_State)[2] ="Count"
 
 #Here I'm using the totals variable to display the number of breweries per State.
-totals %>% ggplot(mapping = aes(x = State, y = Count)) +
-  geom_bar(stat = "identity", color = "black", fill = "brown" )+
-  xlab("States")  + ylab("Number of Breweries")+
-  geom_text(aes(State, Count+9, label = Count), data = totals)+
+breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
+  geom_bar(stat = "identity", color = "black", fill = "red" )+
+  xlab("States")  + ylab("Count of Breweries")+
+  geom_text(aes(State, Count+2, label = Count), data = breweries_Count_State)+
   ggtitle("Breweries per State")+
   theme_fivethirtyeight()
 
@@ -94,7 +95,7 @@ map.df <- map.df[order(map.df$order),]
 heatMap = ggplot(map.df, aes(x=long,y=lat, group = group))+
   geom_polygon(aes(fill= count))+
   #geom_text(aes(x=long, y=lat, label = map.df$count+75), data=map.df, col="black", cex=3)+
-  scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90")+
+  scale_fill_gradientn(colours=rev(heat.colors(5)),na.value="black")+
   ggtitle("Breweries per State")+
   coord_map()+
   geom_path()+
