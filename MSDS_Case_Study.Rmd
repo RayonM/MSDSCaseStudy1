@@ -18,6 +18,8 @@ library(tidyverse)
 library(ggthemes)
 library(ggplot2)
 library(plotly)
+library(GGally)
+library(caret)
 
 ```
 
@@ -30,7 +32,8 @@ beers = read.csv(choose.files())
 #Load breweries data
 breweries = read.csv(choose.files())
 
-beers
+head(beers)
+head(breweries)
 
 
 ```
@@ -49,11 +52,6 @@ totals %>% ggplot(mapping = aes(x = State, y = Count)) +
   ggtitle("Breweries per State")+
   theme_fivethirtyeight()
 
-breweries
-
-
-
-
 ```
 
 
@@ -64,6 +62,11 @@ beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
 
 head(beers_Breweries)
 tail(beers_Breweries)
+
+
+colnames(beers_Breweries)[2] = "Beer_Name"
+colnames(beers_Breweries)[8] = "Brewery_Name"
+
 
 beersNbreweries = na.omit(beers_Breweries)
 Sums = count(beersNbreweries, State)
@@ -76,7 +79,6 @@ beersNbreweries %>% ggplot(mapping = aes(x = State)) +
   ggtitle("Breweries per State")+
   theme_fivethirtyeight()
 
-?geom_text
 ```
 
 # Compute the median alcohol content and international bitterness unit for each state. Plot a bar chart to compare.
@@ -89,7 +91,6 @@ ABV_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(ABV_St
   theme_excel()+
   ggtitle("Mean Alcohol Content per State") + xlab("STATES") + ylab ("ABV Mean")
   ggplotly(ABV_State_Median_Plot)
-
 
 ##g1 = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV)) # Throw away code
 ##write.csv(g1, "ABV_mean.csv") # Throw away code
@@ -104,12 +105,6 @@ IBU_State_Median_Plot = beersNbreweries %>% group_by(State) %>% summarize(IBU_St
   ggtitle("Mean Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
   ggplotly(IBU_State_Median_Plot)
 
-  
-#Test
-  
-  # Failed beersNbreweries$Mean_ABV = beersNbreweries %>% group_by(State) %>% summarize(ABV_State_median = median(ABV))
-
-    
 ```
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
 
@@ -119,9 +114,7 @@ beersNbreweries %>% summarize(Max_ABV = max(ABV)) %>% arrange(Max_ABV, by_group 
 
 beersNbreweries %>% summarize(Max_IBU = max(IBU)) %>% arrange(Max_IBU, by_group = TRUE)
 
-
-
-
+?which
 ```
 
 # Comment on the summary statistics and distribution of the ABV variable.
@@ -134,8 +127,6 @@ geom_histogram()
 beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
 geom_boxplot()
 
-
-
 summary(beersNbreweries$ABV)
 
 ```
@@ -143,6 +134,15 @@ summary(beersNbreweries$ABV)
 # Is there an apparent relationship between the bitterness of the beer and its alcoholic content? Draw a scatter plot.  Make your best judgment of a relationship and EXPLAIN your answer
 
 ```{r}
+
+beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, jitter = ABV, color = State)) +
+  geom_point()
+
+
+beersNbreweries %>% select(ABV, IBU) %>% ggpairs(aes())
+
+  
+
 
 ```
 
