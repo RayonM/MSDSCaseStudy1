@@ -14,27 +14,34 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
+
+# Install all needed R libraries and packages.
+
 library(tidyverse)
 library(ggthemes)
 library(ggplot2)
 library(plotly)
 library(GGally)
 library(caret)
+library(maps)
+library(dplyr)
+library(mapproj)
 
 ```
 
 #load the data
 
 ```{r}
+
 #Load beers data
 beers = read.csv(choose.files())
 
 #Load breweries data
 breweries = read.csv(choose.files())
 
+#Quick look at the dataframe for both datasets.
 head(beers)
 head(breweries)
-
 
 ```
 
@@ -42,8 +49,14 @@ head(breweries)
 
 ```{r, echo=FALSE}
 
-totals = count(breweries, State)
+#Use the breweries dataset to calculate the number of breweries present in each State.
+#This data will be stored in the variable "totals."
+totals = count(new_breweries, State)
+
+#Rename the column n to a recognizable name.
 colnames(totals)[2] ="Count"
+
+#Here I'm using the totals variable to display the number of breweries per State.
 
 totals %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "black", fill = "brown" )+
@@ -52,6 +65,49 @@ totals %>% ggplot(mapping = aes(x = State, y = Count)) +
   ggtitle("Breweries per State")+
   theme_fivethirtyeight()
 
+#Would be cool to do this using the US Map
+colnames(breweries)[4] = "abb"
+new_breweries = merge(breweries,lookup, by = "abb", all = TRUE)
+
+totals$region <- tolower(totals$State)
+breweries$abb = trimws(breweries$abb)
+totals2 = totals[-1]
+states <- map_data("state")
+map.df <- merge(states,totals2, by="region", all.x=T)
+map.df <- map.df[order(map.df$order),]
+
+
+
+#Non functioning code
+# heatMap = map.df %>% group_by(group, region) %>% summarize(total = count(Count)) %>%
+#   ggplot(mapping = aes(x=long,y=lat, group = group))+
+#   geom_polygon(aes(fill= Count))+
+#   geom_path()+
+#   geom_text(aes(x=long, y=lat,label= total), data=map.df, col="black", cex=3)+
+#   scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90")+
+#   ggtitle("Breweries per State")+
+#   coord_map()
+# 
+# ggplotly(heatMap)
+
+
+#Functioning Code but it's not correct
+heatMap =  ggplot(map.df, aes(x=long,y=lat, group = group))+
+  geom_polygon(aes(fill= Count))+
+  geom_text(aes(x=long, y=lat, label = Count), data=map.df, col="black", cex=3)+
+  scale_fill_gradientn(colours=rev(heat.colors(10)),na.value="grey90")+
+  ggtitle("Breweries per State")+
+  coord_map()+
+  geom_path()
+ggplotly(heatMap)
+
+
+#install.packages("doBy")
+# library(doBy)
+txtVal <- summaryBy(long + lat + NULL~id, data=map.df, FUN=mean, keep.names=T)
+# m3 <- m2 + geom_text(aes(x=long, y=lat, label=Value), data=txtVal, col="yellow", cex=3)
+
+?summaryBy
 ```
 
 
