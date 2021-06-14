@@ -40,23 +40,24 @@ library(stringr)
 
 # #Load beers data
 beers = read.csv(file.choose())
-# 
+#
 # #Load breweries data
 breweries = read.csv(file.choose())
+
+
 
 #Quick look at the dataframe for both datasets.
 head(beers)
 head(breweries)
 
-
 ```
 
 # How many breweries are present in each state?
 
-```{r, echo=FALSE}
+```{r}
 
-#Use the breweries dataset to calculate the number of breweries present in each State.
-#This data will be stored in the variable "totals."
+#Use the breweries dataset to count the number of breweries present in each State.
+#This data will be stored in the variable "breweries_Count_State."
 breweries_Count_State = count(breweries, State)
 
 
@@ -239,15 +240,18 @@ beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
 # Is there an apparent relationship between the bitterness of the beer and its alcoholic content? Draw a scatter plot.  Make your best judgment of a relationship and EXPLAIN your answer
 
 ```{r}
+#Scatter Plot showing the distribution of the ABV versus the IBU variables.
 
-beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", stroke = 1)) +
+g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", stroke = 1)) +
   geom_point(color = "brown")+
   theme_economist()+
   xlab("ABV") + ylab("IBU")+
   ggtitle("Relationship between bitterness and Alcohol content")
 
+ggplotly(g)
 
-beersNbreweries %>% select(ABV, IBU) %>% ggpairs(aes())
+
+# The relationship between the ABV and IBU appears to be positively linear. As the ABV increases we can see that IBU also increases. There is a cluster around the 0.050 ABV value, indicating that a great majority of beers try to stay near that number.In our data set most of the ABV data was below the 0.100 ABV value. There were only two beers that went above that number.However, the IBU values was not as high as expected given that the trend is linear. These two beers were in the States of Indiana and Kentucky. 
 
 
 ```
