@@ -218,14 +218,14 @@ beersNbreweries %>%
   group_by(State) %>%
   dplyr::summarize(mean = mean(ABV), sd = sd(ABV), median = median(ABV), range = max(ABV)- min(ABV), IQR = IQR(ABV), count = n())
 
-#Boxplot to show the Statistics
+#Box Plot to show the Statistics of the ABV variable.
 beersNbreweries %>% 
   ggplot(mapping = aes(x = ABV))+
-  geom_boxplot(color = "red", fill = "black")
+  geom_boxplot(color = "red", fill = "black")+
+  ggtitle("Box Plot of the ABV variable")
 
 
 # I Created a Histogram of ABV to see its distribution.
-
 beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
   geom_histogram(color = "black", fill = "red")+
   theme_economist()+
