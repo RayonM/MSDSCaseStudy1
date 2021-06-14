@@ -45,7 +45,6 @@ beers = read.csv(file.choose())
 breweries = read.csv(file.choose())
 
 
-
 #Quick look at the dataframe for both datasets.
 head(beers)
 head(breweries)
@@ -58,7 +57,7 @@ head(breweries)
 
 #Use the breweries dataset to count the number of breweries present in each State.
 #This data will be stored in the variable "breweries_Count_State."
-breweries_Count_State = count(breweries, State)
+breweries_Count_State = dplyr::count(breweries,State)
 
 
 #Rename the column n to a recognizable name.
@@ -81,7 +80,7 @@ lookup = data.frame(abb = state.abb, State = state.name)
 lookup
 new_breweries = merge(breweries,lookup, by = "abb", all = TRUE)
 new_breweries
-totals = count(new_breweries, State)
+totals = dplyr::count(new_breweries, State)
 na.omit(new_breweries)
 totals$region <- tolower(totals$State)
 totals
@@ -99,13 +98,13 @@ map.df <- map.df[order(map.df$order),]
 #Functioning Code but it's not correct
 heatMap = ggplot(map.df, aes(x=long,y=lat, group = group))+
   geom_polygon(aes(fill= count))+
-  geom_text(aes(x=long, y=lat, label = map.df$count), col="black", cex=3)+
-  scale_fill_gradientn(colours=rev(heat.colors(5)),na.value="black")+
+  #geom_text(aes(x=long, y=lat, label = map.df$count), col="black", cex=3)+
+  scale_fill_gradientn(colours=rev(heat.colors(15)),na.value="black")+
   ggtitle("Breweries per State")+
   coord_map()+
   geom_path()+
-  xlab("Longitute") + ylab("Latitude")+
-  theme_wsj()
+  xlab("") + ylab("")+
+  theme_economist()
 ggplotly(heatMap)
 
 ```
