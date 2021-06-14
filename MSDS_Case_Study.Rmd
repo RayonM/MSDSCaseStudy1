@@ -213,12 +213,25 @@ beersNbreweries$State[1134]
 
 ```{r}
 
-beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
-geom_histogram()
+#Statistics of the ABV variable
+beersNbreweries %>%
+  group_by(State) %>%
+  dplyr::summarize(mean = mean(ABV), sd = sd(ABV), median = median(ABV), range = max(ABV)- min(ABV), IQR = IQR(ABV), count = n())
+
+#Boxplot to show the Statistics
+beersNbreweries %>% 
+  ggplot(mapping = aes(x = ABV))+
+  geom_boxplot(color = "red", fill = "black")
+
+
+# I Created a Histogram of ABV to see its distribution.
 
 beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
-geom_boxplot()
+  geom_histogram(color = "black", fill = "red")+
+  theme_economist()+
+  ggtitle("Histogram of ABV") + xlab("ABV Values") + ylab ("Count")
 
+# The distribution of the ABV variable is right skewed.
 
 
 ```
