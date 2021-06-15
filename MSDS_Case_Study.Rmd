@@ -121,7 +121,7 @@ ABV_Median_State
 
 #Plot a bar chart
 ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
-  geom_bar(stat = "identity", fill = "darkslategray4")+
+  geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
   geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ #Added labels to the chart
   theme_tufte()+
   ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Mean")
@@ -132,8 +132,8 @@ IBU_Median_State
 
 #Plot a bar chart
   IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_Median )) +
-  geom_bar(stat = "identity",fill = "darkslategray4")+ 
-  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=2.3)+ #Added labels to the chart
+  geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+ 
+  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+ #Added labels to the chart
   theme_tufte()+
   ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Mean")
   
@@ -173,13 +173,14 @@ beersNbreweries %>%
 #Box Plot to show the Statistics of the ABV variable.
 beersNbreweries %>% 
   ggplot(mapping = aes(x = ABV))+
-  geom_boxplot(color = "red", fill = "black")+
-  ggtitle("Box Plot of the ABV variable")
+  geom_boxplot(color = "darkgrey", fill = "darkslategray4")+
+  ggtitle("ABV Variable Box Plot")+
+  theme_tufte()
 
 
 # I Created a Histogram of ABV to see its distribution.
 beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
-  geom_histogram(color = "black", fill = "red")+
+  geom_histogram(color = "darkgrey", fill = "darkslategray4")+
   theme_tufte()+
   ggtitle("Histogram of ABV") + xlab("ABV Values") + ylab ("Count")
 
