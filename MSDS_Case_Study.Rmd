@@ -30,6 +30,7 @@ library(mapproj)
 library(dplyr)
 #library(stringi)
 #library(stringr)
+library(class)
 
 ```
 
@@ -195,11 +196,11 @@ ggplotly(g)
 ```{r}
 #Due June 26th
 
+(grep("Indie Pale Ales", beersNbreweries$Beer_Name))
 
-# (grep("SUSHI", df_Baltimore_Restaurants$name))
-# length(grep("SUSHI", df_Baltimore_Restaurants$name))
-# sum(grepl("SUSHI", df_Baltimore_Restaurants$name))
-# which(grepl("SUSHI", df_Baltimore_Restaurants$name))
-# which(grepl("0.125",beersNbreweries$State))
+df = which(grepl("Ale", beersNbreweries$Beer_Name))# Add border things or use ^ to get True "Ale" from the names.
+df
+beersNbreweries$Beer_Name[df]
+
 ```
 
