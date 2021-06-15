@@ -62,16 +62,65 @@ breweries_Count_State = dplyr::count(breweries,State)
 #Rename the column n to a recognizable name.
 colnames(breweries_Count_State)[2] ="Count"
 
+####Changed count to 2 to make it more legible
 #Here I'm using the totals variable to display the number of breweries per State.
 breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "black", fill = "grey" )+
   xlab("States")  + ylab("Count of Breweries")+
+<<<<<<< HEAD
   geom_text(aes(State, Count+1, label = Count), data = breweries_Count_State, col="brown")+
   ggtitle("Breweries per State")+
   theme_tufte()
+=======
+  geom_text(aes(State, Count+2, label = Count), data = breweries_Count_State, col="blue")+
+  ggtitle("Breweries per State")+
+  theme_wsj()
+?geom_text
+
+#Would be cool to do this using the US Map
+colnames(breweries)[4] = "abb"
+breweries$abb = trimws(breweries$abb)
+breweries
+lookup = data.frame(abb = state.abb, State = state.name)
+lookup
+new_breweries = merge(breweries,lookup, by = "abb", all = TRUE)
+new_breweries
+totals = dplyr::count(new_breweries, State)
+na.omit(new_breweries)
+totals$region <- tolower(totals$State)
+totals
+colnames(totals)[2] = "count"
+totals2 = totals[-1]
+totals2
+states <- map_data("state")
+states
+states2 = states[-6]
+states2
+map.df <- merge(states2,totals2, by ="region", all.x = TRUE)
+map.df
+map.df <- map.df[order(map.df$order),]
+
+
+#### Added label=count so it's easier to find when hovering over
+#Functioning Code but it's not correct
+heatMap = ggplot(map.df, aes(x=long,y=lat, label=count, group = group)) +
+  geom_polygon(aes(fill= count))+
+  #geom_text(aes(x=long, y=lat, label = map.df$count), col="black", cex=3)+
+  scale_fill_gradientn(colours=rev(heat.colors(15)),na.value="black")+
+  ggtitle("Breweries per State")+
+  coord_map()+
+  geom_path()+
+  xlab("") + ylab("")+
+  theme_economist()
+ggplotly(heatMap) 
+>>>>>>> 6f3dab8135479d7ba65dc295670db670901efa4d
 
 ```
 
+### Tried adding labels 
+### snames <- data.frame(region=tolower(state.name), long=state.center$x, lat=state.center$y)
+####snames <- merge(snames, map.df, by="region")
+###3ggplot(snames, aes(x=long, y=lat)) + geom_polygon(aes(group=group, fill=count)) + #### ### geom_text(data=snames, aes(x=long, y=lat, label=count))
 
 # Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
 
@@ -109,7 +158,7 @@ beersNbreweries %>% ggplot(mapping = aes(x = State)) +
 # Compute the median alcohol content and international bitterness unit for each state. Plot a bar chart to compare.
 
 ```{r}
-
+#### Did you rename state to abb?
 #Compute the median the ABV (alcohol content) for each state.
 ABV_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
 ABV_Median_State
