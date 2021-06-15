@@ -73,20 +73,11 @@ breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
  
 ```
 
-### Tried adding labels 
-### snames <- data.frame(region=tolower(state.name), long=state.center$x, lat=state.center$y)
-####snames <- merge(snames, map.df, by="region")
-###3ggplot(snames, aes(x=long, y=lat)) + geom_polygon(aes(group=group, fill=count)) + #### ### geom_text(data=snames, aes(x=long, y=lat, label=count))
-
 # Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
 
 ```{r}
-
+#Use the Inner join method to merge the beers and breweries dataset via the Brew_ID and Brewery_ID
 beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
-
-beers_Breweries
-
-write.csv(beers_Breweries, "missingdataincluded.csv")
 
 head(beers_Breweries)
 tail(beers_Breweries)
@@ -96,44 +87,32 @@ colnames(beers_Breweries)[2] = "Beer_Name"
 colnames(beers_Breweries)[8] = "Brewery_Name"
 
 #The following columns had NA values/missing data: ABV, IBU, and Styles(these were blank and Not N/A). To Tidy the data, we excluded those values from the dataset. We do not have a way to find those data points at this time. 
-beersNbreweries = na.omit(beers_Breweries)#Thinking about changing the name to cleanBeersNBreweries
-
-Sums = dplyr::count(beersNbreweries,State)
-colnames(Sums)[2] = "Count"
-
-#Doesn't seem like it's need for the question 2. May strip out in final presentation.
-beersNbreweries %>% ggplot(mapping = aes(x = State)) +
-  geom_bar(color = "black", fill = "brown" )+
-  xlab("States")  + ylab("Number of Breweries")+
-  geom_text(aes(State, Count+3, label = Count), data = Sums)+
-  ggtitle("Breweries per State")+
-  theme_fivethirtyeight()
+beersNbreweries = na.omit(beers_Breweries)
 
 ```
 
 # Compute the median alcohol content and international bitterness unit for each state. Plot a bar chart to compare.
 
 ```{r}
-#### Did you rename state to abb?
+
 #Compute the median the ABV (alcohol content) for each state.
 ABV_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
-ABV_Median_State
 
 #Plot a bar chart
 ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
-  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ #Added labels to the chart
+  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ 
   theme_tufte()+
   ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Mean")
 
 #Compute the median IBU (International bitterness Unit)
 IBU_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
-IBU_Median_State
+
 
 #Plot a bar chart
   IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_Median )) +
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+ 
-  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+ #Added labels to the chart
+  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+
   theme_tufte()+
   ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Mean")
   
@@ -183,6 +162,7 @@ beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
   geom_histogram(color = "darkgrey", fill = "darkslategray4")+
   theme_tufte()+
   ggtitle("Histogram of ABV") + xlab("ABV Values") + ylab ("Count")
+  
 
 # The distribution of the ABV variable is right skewed.
 
@@ -216,10 +196,10 @@ ggplotly(g)
 #Due June 26th
 
 
-(grep("SUSHI", df_Baltimore_Restaurants$name))
-length(grep("SUSHI", df_Baltimore_Restaurants$name))
-sum(grepl("SUSHI", df_Baltimore_Restaurants$name))
-which(grepl("SUSHI", df_Baltimore_Restaurants$name))
-which(grepl("0.125",beersNbreweries$State))
+# (grep("SUSHI", df_Baltimore_Restaurants$name))
+# length(grep("SUSHI", df_Baltimore_Restaurants$name))
+# sum(grepl("SUSHI", df_Baltimore_Restaurants$name))
+# which(grepl("SUSHI", df_Baltimore_Restaurants$name))
+# which(grepl("0.125",beersNbreweries$State))
 ```
 
