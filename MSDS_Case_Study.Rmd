@@ -65,9 +65,9 @@ colnames(breweries_Count_State)[2] ="Count"
 ####Changed count to 2 to make it more legible
 #Here I'm using the totals variable to display the number of breweries per State.
 breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
-  geom_bar(stat = "identity", color = "black", fill = "grey" )+
+  geom_bar(stat = "identity", color = "darkgrey", fill = "darkslategray4" )+
   xlab("States")  + ylab("Count of Breweries")+
-  geom_text(aes(State, Count+1, label = Count), data = breweries_Count_State, col="brown")+
+  geom_text(aes(State, Count+1, label = Count), data = breweries_Count_State)+
   ggtitle("Breweries per State")+
   theme_tufte()
  
