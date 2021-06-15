@@ -194,8 +194,8 @@ beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
 ```{r}
 #Scatter Plot showing the distribution of the ABV versus the IBU variables.
 
-g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", stroke = 1)) +
-  geom_point(color = "brown")+
+g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter")) +
+  geom_point(color = "darkslategray4")+
   theme_tufte()+
   xlab("ABV") + ylab("IBU")+
   ggtitle("Relationship between bitterness and Alcohol content")+
