@@ -104,7 +104,7 @@ ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
   geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ 
   theme_tufte()+
-  ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Mean")
+  ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Median")
 
 #Compute the median IBU (International bitterness Unit)
 IBU_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
@@ -115,7 +115,7 @@ IBU_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(IBU_
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+ 
   geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+
   theme_tufte()+
-  ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Mean")
+  ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Median")
   
 ```
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
