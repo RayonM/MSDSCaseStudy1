@@ -67,54 +67,10 @@ colnames(breweries_Count_State)[2] ="Count"
 breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "black", fill = "grey" )+
   xlab("States")  + ylab("Count of Breweries")+
-<<<<<<< HEAD
   geom_text(aes(State, Count+1, label = Count), data = breweries_Count_State, col="brown")+
   ggtitle("Breweries per State")+
   theme_tufte()
-=======
-  geom_text(aes(State, Count+2, label = Count), data = breweries_Count_State, col="blue")+
-  ggtitle("Breweries per State")+
-  theme_wsj()
-?geom_text
-
-#Would be cool to do this using the US Map
-colnames(breweries)[4] = "abb"
-breweries$abb = trimws(breweries$abb)
-breweries
-lookup = data.frame(abb = state.abb, State = state.name)
-lookup
-new_breweries = merge(breweries,lookup, by = "abb", all = TRUE)
-new_breweries
-totals = dplyr::count(new_breweries, State)
-na.omit(new_breweries)
-totals$region <- tolower(totals$State)
-totals
-colnames(totals)[2] = "count"
-totals2 = totals[-1]
-totals2
-states <- map_data("state")
-states
-states2 = states[-6]
-states2
-map.df <- merge(states2,totals2, by ="region", all.x = TRUE)
-map.df
-map.df <- map.df[order(map.df$order),]
-
-
-#### Added label=count so it's easier to find when hovering over
-#Functioning Code but it's not correct
-heatMap = ggplot(map.df, aes(x=long,y=lat, label=count, group = group)) +
-  geom_polygon(aes(fill= count))+
-  #geom_text(aes(x=long, y=lat, label = map.df$count), col="black", cex=3)+
-  scale_fill_gradientn(colours=rev(heat.colors(15)),na.value="black")+
-  ggtitle("Breweries per State")+
-  coord_map()+
-  geom_path()+
-  xlab("") + ylab("")+
-  theme_economist()
-ggplotly(heatMap) 
->>>>>>> 6f3dab8135479d7ba65dc295670db670901efa4d
-
+ 
 ```
 
 ### Tried adding labels 
@@ -166,9 +122,9 @@ ABV_Median_State
 #Plot a bar chart
 ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
   geom_bar(stat = "identity", fill = "darkslategray4")+
-  geom_text(aes(State, ABV_Median=1, label = ABV_Median), data = ABV_Median_State)+
+  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ #Added labels to the chart
   theme_tufte()+
-  ggtitle("Median Alcohol Content per State") + xlab("STATES") + ylab ("ABV Mean")
+  ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Mean")
 
 #Compute the median IBU (International bitterness Unit)
 IBU_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
@@ -176,10 +132,10 @@ IBU_Median_State
 
 #Plot a bar chart
   IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_Median )) +
-  geom_bar(stat = "identity", color = "black", fill = "red")+ 
-  geom_text(aes(State, IBU_Median+3, label = IBU_Median), data = IBU_Median_State)+ #Added labels to the chart
+  geom_bar(stat = "identity",fill = "darkslategray4")+ 
+  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=2.3)+ #Added labels to the chart
   theme_tufte()+
-  ggtitle("Median Internation Bitterness Unit per State") + xlab("STATES") + ylab ("IBU Mean")
+  ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Mean")
   
 ```
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
