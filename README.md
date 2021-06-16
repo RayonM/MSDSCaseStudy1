@@ -2,8 +2,7 @@
 
 MSDS Class Case Study 1  
 
-Team Members
-
+Team Members  
   Rayon Morris  
   Sufiyan Mohammed
   
