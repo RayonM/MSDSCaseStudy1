@@ -28,8 +28,8 @@ library(caret)
 library(maps)
 library(mapproj)
 library(dplyr)
-#library(stringi)
-#library(stringr)
+library(stringi)
+library(stringr)
 library(class)
 
 ```
@@ -38,11 +38,15 @@ library(class)
 
 ```{r}
 
-#Load beers data
-beers = read.csv(file.choose())
+# #Load beers data
+# beers = read.csv(file.choose())
+# 
+# #Load breweries data
+# breweries = read.csv(file.choose())
 
-#Load breweries data
-breweries = read.csv(file.choose())
+beers = read.csv("C:/Users/Rayon/OneDrive/Documents/Doing DataScience/Doing Data Science/MSDS_6306_Doing-Data-Science/Unit 8 and 9 Case Study 1/Beers.csv")
+
+breweries = read.csv("C:/Users/Rayon/OneDrive/Documents/Doing DataScience/Doing Data Science/MSDS_6306_Doing-Data-Science/Unit 8 and 9 Case Study 1/Breweries.csv")
 
 
 #Quick look at the dataframe for both datasets.
@@ -56,15 +60,13 @@ head(breweries)
 ```{r}
 
 #Use the breweries dataset to count the number of breweries present in each State.
-#This data will be stored in the variable "breweries_Count_State."
+#This data will be stored in the variable "breweries_Count_State" which stands for Brewery count per State.
 breweries_Count_State = dplyr::count(breweries,State)
 
-
-#Rename the column n to a recognizable name.
+#Rename the column n to a recognizable name
 colnames(breweries_Count_State)[2] ="Count"
 
-####Changed count to 2 to make it more legible
-#Here I'm using the totals variable to display the number of breweries per State.
+#Create a plot to visualize the number of breweries per State.
 breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "darkgrey", fill = "darkslategray4" )+
   xlab("States")  + ylab("Count of Breweries")+
@@ -74,11 +76,16 @@ breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
  
 ```
 
-# Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.  (RMD only, this does not need to be included in the presentation or the deck.)
+# Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.
 
 ```{r}
-#Use the Inner join method to merge the beers and breweries dataset via the Brew_ID and Brewery_ID
+# Create a new dataframe called beers_breweries. It will contain the dataset after using
+#the Inner Join method to merge the beers and breweries dataset via the Brew_ID and Brewery_ID
+
+# We chose to use the inner join because it combines only observations that are in both datasets or in other words, observations that are common to both datasets.
 beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
+
+dim(beers_Breweries)
 
 head(beers_Breweries)
 tail(beers_Breweries)
@@ -87,17 +94,69 @@ tail(beers_Breweries)
 colnames(beers_Breweries)[2] = "Beer_Name"
 colnames(beers_Breweries)[8] = "Brewery_Name"
 
-#The following columns had NA values/missing data: ABV, IBU, and Styles(these were blank and Not N/A). To Tidy the data, we excluded those values from the dataset. We do not have a way to find those data points at this time. 
-beersNbreweries = na.omit(beers_Breweries)
+#The following columns had NA values/missing data: ABV, IBU, and Styles(these were blank and Not N/A). To Tidy the data, we excluded those values from the dataset. We do not have a way to find those data points at this time. These were Explicitly missing. The value had a place but was simply just not recorded and thus had NA.
+#beersNbreweries = na.omit(beers_Breweries)
 
 ```
+```{r}
+Use this
+
+#EDA with Missing data
+
+NA_Table = beers_Breweries %>% filter(is.na(IBU)| is.na(ABV))
+
+view(NA_Table)
+
+
+
+NA_Table %>% ggplot(mapping = aes(x = State, fill = ABV))+
+  geom_histogram(stat = "count")
+
+
+
+NA_Table %>% ggplot(mapping = aes(x = State, y = ABV, fill = ABV))+
+  geom_bar(stat = "identity")
+
+
+
+meanperstate = beers_Breweries %>% filter(!is.na(ABV))
+
+#Plot a bar chart
+ABV_Median_State = meanperstate %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
+
+ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
+  geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
+  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ 
+  theme_tufte()+
+  ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Median")
+
+
+meanperstateIBU = beers_Breweries %>% filter(!is.na(IBU))
+
+IBU_Median_State = meanperstateIBU %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
+
+
+#Plot a bar chart
+  IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_Median )) +
+  geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+ 
+  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+
+  theme_tufte()+
+  ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Median")
+
+```
+
 
 # Compute the median alcohol content and international bitterness unit for each state. Plot a bar chart to compare.
 
 ```{r}
 
+
+
+
+
+
 #Compute the median the ABV (alcohol content) for each state.
-ABV_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
+ABV_Median_State = beers_Breweries %>% filter(!is.na(ABV)) %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
 
 #Plot a bar chart
 ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
@@ -107,7 +166,7 @@ ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
   ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Median")
 
 #Compute the median IBU (International bitterness Unit)
-IBU_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
+IBU_Median_State = beers_Breweries %>% filter(!is.na(IBU)) %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
 
 
 #Plot a bar chart
@@ -118,26 +177,36 @@ IBU_Median_State = beersNbreweries %>% group_by(State) %>% dplyr::summarize(IBU_
   ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Median")
   
 ```
+
+
+
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
 
 ```{r}
 # Finds the Max number within the ABV variable and the row number (index) in which the maximum ABV number may be found.
- 
-state_Max_ABV = beersNbreweries %>% summarise(Max_ABV= max(ABV), row_Index = which.max(ABV))
-state_Max_ABV # The maximum ABV is 0.125 and can be found in row 8.
+z = beers_Breweries %>% filter(!is.na(ABV))
 
-#Uses the row number (8) from above to find the State that coincides with the maximum ABV. 
-beersNbreweries$State[8]
-#The State is Kentucky (KY).
+state_Max_ABV = beers_Breweries %>% filter(!is.na(ABV)) %>% summarise(Max_ABV= max(ABV), row_Index = which.max(ABV))
+state_Max_ABV # The maximum ABV is 0.128 and can be found in row 369.
+
+#Use the index (8) from above to find the State that coincides with the maximum ABV. 
+beers_Breweries %>% filter(!is.na(ABV)) %>% beers_Breweries
+z$State[369]
+
+view(z)
+#The State is Colorado (CO).
 
 # Find the Max number within the IBU variable and the row number (index) in which the maximum IBU number may be found.
 
-state_Max_IBU = beersNbreweries %>% summarise(Max_IBU= max(IBU), row_Index = which.max(IBU))
+state_Max_IBU = beers_Breweries %>% filter(!is.na(IBU)) %>% summarise(Max_IBU= max(IBU), row_Index = which.max(IBU))
 state_Max_IBU # The maximum IBU is 138 and can be found in row 1134.
 
 #Uses the row number (1134) from above to find the State that coincides with the maximum IBU.
-beersNbreweries$State[1134]
+beers_Breweries$State[1134]
 #The State is Oregon (OR).
+
+p = beers_Breweries %>% filter(!is.na(IBU))
+p$State[1134]
 
 ```
 
@@ -175,8 +244,11 @@ beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
 ```{r}
 #Scatter Plot showing the distribution of the ABV versus the IBU variables.
 
-g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter")) +
-  geom_point(color = "darkslategray4")+
+#beersNbreweries$Ounces = numeric(beersNbreweries$Ounces)
+#str(beersNbreweries)
+
+g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces)) +
+  geom_point()+
   theme_tufte()+
   xlab("ABV") + ylab("IBU")+
   ggtitle("Relationship between bitterness and Alcohol content")+
@@ -185,22 +257,109 @@ g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter
 ggplotly(g)
 
 
-# The relationship between the ABV and IBU appears to be positively linear. As the ABV increases we can see that IBU also increases. There is a cluster around the 0.050 ABV value, indicating that a great majority of beers try to stay near that number.In our data set most of the ABV data was below the 0.100 ABV value. There were only two beers that went above that number.However, the IBU values was not as high as expected given that the trend is linear. These two beers were in the States of Indiana and Kentucky. 
+# The relationship between the ABV and IBU is positively linear (0.671). As the ABV increases we can see that IBU also increases. There is a cluster around the 0.050 ABV value, indicating that a great majority of beers try to stay near that number.In our data set most of the ABV data was below the 0.100 ABV value. There were only two beers that went above that number.However, the IBU values was not as high as expected given that the trend is linear. These two beers were in the States of Indiana and Kentucky. 
 
 
 ```
 
-#Budweiser would also like to investigate the difference with respect to IBU and ABV between IPAs (India Pale Ales) and other types of Ale (any beer with “Ale” in its name other than IPA).  You decide to use KNN classification to investigate this relationship.  Provide statistical evidence one way or the other. You can of course assume your audience is comfortable with percentages … KNN is very easy to understand conceptually.
+
+
+#Budweiser would also like to investigate the difference with respect to IBU and ABV between IPAs (India Pale Ales) and other types of Ale (any beer with “Ale” in its name other than IPA). You decide to use KNN classification to investigate this relationship.  Provide statistical evidence one way or the other. You can of course assume your audience is comfortable with percentages … KNN is very easy to understand conceptually.
 
 
 ```{r}
 #Due June 26th
+#Use Knn.cv
 
-(grep("Indie Pale Ales", beersNbreweries$Beer_Name))
+(grep("India/Pale/Ale", beersNbreweries$Beer_Name, ignore.case = TRUE))
 
-df = which(grepl("Ale", beersNbreweries$Beer_Name))# Add border things or use ^ to get True "Ale" from the names.
+
+
+x = beersNbreweries %>% filter(!beersNbreweries$Beer_Name == "India Pale Ale")
+x
+df = which(grepl("\\bAle\\b", x$Beer_Name))# Add border things or use ^ to get True "Ale" from the names.
 df
-beersNbreweries$Beer_Name[df]
+Train = beersNbreweries[df, ]
+
+
+set.seed(6)
+splitPerc = .75
+trainIndices = sample(1:dim(Train)[1],round(splitPerc * dim(Train)[1]))
+
+traindata = Train[trainIndices,]
+test = Train[-trainIndices,]
+
+# k = 3
+classifications = knn.cv(traindata[,c(4,5)],test[,c(4,5)],Train$Style, prob = TRUE, k = 3)
+
+
+table(classifications,test$Style)
+
+confusionMatrix(table(classifications,test$Style))
 
 ```
+
+
+
+```{r}
+# EDA
+# How many Beers are produced by each Brewery? What opportunity exist within each Brewery?
+
+beersByBrewery = dplyr::count(beers_Breweries,Brewery_id)
+
+#Create a plot to visualize the number of breweries per State.
+beersByBrewery %>% ggplot(mapping = aes(x = Brewery_id, y = n)) +
+  geom_bar(stat = "identity",  fill = "darkslategray4" )+
+  xlab("Brewery Id")  + ylab("Count")+
+  ggtitle("Beers per Brewery")+
+  theme_tufte()
+
+view(beersByBrewery)
+
+#beersNbreweries %>% select(ABV, IBU) %>% ggpairs()
+
+```
+
+
+#Viewing Library
+
+```{r}
+
+View(breweries_Count_State)
+view(breweries)
+view(beers)
+view(beersByBrewery)
+View(beers_Breweries)
+view(beersNbreweries)
+view(z)
+view(p)
+view(beers_Breweries)
+
+```
+
+
+```{r}
+beersNbreweries$Ounces = factor(beersNbreweries$Ounces)
+
+#beersNbreweries$Ounces = numeric(beersNbreweries$Ounces)
+
+#str(beersNbreweries)
+
+c = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces, size = 2)) +
+  geom_point()+
+  theme_tufte()+
+  xlab("ABV") + ylab("IBU")+
+  ggtitle("Relationship between bitterness and Alcohol content")
+  #geom_smooth(aes(x = ABV, y = IBU))
+
+ggplotly(c)
+
+r = count(beersNbreweries, Ounces)
+
+z = count(beers, Ounces)
+
+
+```
+
+
 
