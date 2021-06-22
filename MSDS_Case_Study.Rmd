@@ -12,12 +12,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-Good day Mr. CEO & CFO. I'd like to thank you for accepting my invitation. Today, I'd like to address the questions you recently posed during our last Steering Committee meeting and provide you with a brief analysis that may pique your interest. This research was done using the Beer and Breweries data provided. 
+Good day Mr. CEO & CFO. Throughout this document, I've provided responses to your questions regarding the Exploratory Data Analysis (EDA) as well as highlighted some key findings that may pique your interest. The analysis was done using the source files of the Beers and Breweries data. 
 
 
 ```{r}
 
-# Install all needed R libraries and packages.
+# Load the necessary R libraries and packages.
 
 library(tidyverse)
 library(ggthemes)
@@ -38,18 +38,13 @@ library(class)
 
 ```{r}
 
-# #Load beers data
-# beers = read.csv(file.choose())
-# 
-# #Load breweries data
-# breweries = read.csv(file.choose())
+# Load the beers data from the beers.csv file.
+beers = read.csv(file.choose())
+ 
+# Load the breweries data from the breweries.csv file.
+breweries = read.csv(file.choose())
 
-beers = read.csv("C:/Users/Rayon/OneDrive/Documents/Doing DataScience/Doing Data Science/MSDS_6306_Doing-Data-Science/Unit 8 and 9 Case Study 1/Beers.csv")
-
-breweries = read.csv("C:/Users/Rayon/OneDrive/Documents/Doing DataScience/Doing Data Science/MSDS_6306_Doing-Data-Science/Unit 8 and 9 Case Study 1/Breweries.csv")
-
-
-#Quick look at the dataframe for both datasets.
+#view the head of the dataframe for both datasets.
 head(beers)
 head(breweries)
 
@@ -59,18 +54,19 @@ head(breweries)
 
 ```{r}
 
-#Use the breweries dataset to count the number of breweries present in each State.
-#This data will be stored in the variable "breweries_Count_State" which stands for Brewery count per State.
-breweries_Count_State = dplyr::count(breweries,State)
+#Use the breweries dataset to calculate the number of breweries present within each State.
+#This data will be stored in the variable "breweries_Count_by_State" which is defined as Brewery Count by State.
+breweries_Count_by_State = dplyr::count(breweries,State)
 
-#Rename the column n to a recognizable name
-colnames(breweries_Count_State)[2] ="Count"
+#Rename the variable 'n' to a more meaningful name
+colnames(breweries_Count_by_State)[2] ="Count"
 
-#Create a plot to visualize the number of breweries per State.
-breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
+
+#Create a bar chart visualization to display the tally of Breweries in each State.
+breweries_Count_by_State %>% ggplot(mapping = aes(x = State, y = Count)) +
   geom_bar(stat = "identity", color = "darkgrey", fill = "darkslategray4" )+
   xlab("States")  + ylab("Count of Breweries")+
-  geom_text(aes(State, Count+1, label = Count), data = breweries_Count_State)+
+  geom_text(aes(State, Count+1, label = Count), data = breweries_Count_by_State)+
   ggtitle("Breweries per State")+
   theme_tufte()
  
@@ -79,9 +75,7 @@ breweries_Count_State %>% ggplot(mapping = aes(x = State, y = Count)) +
 # Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.
 
 ```{r}
-# Create a new dataframe called beers_breweries. It will contain the dataset after using
-#the Inner Join method to merge the beers and breweries dataset via the Brew_ID and Brewery_ID
-
+# Create a new dataframe called beers_breweries. This dataframe will have the dataset after using the Inner Join method to merge the beers and breweries dataset using the Brewery_ID from beers and Brew_ID from breweries.
 # We chose to use the inner join because it combines only observations that are in both datasets or in other words, observations that are common to both datasets.
 beers_Breweries = merge(beers, breweries, by.x = "Brewery_id", by.y = "Brew_ID")
 
@@ -94,54 +88,23 @@ tail(beers_Breweries)
 colnames(beers_Breweries)[2] = "Beer_Name"
 colnames(beers_Breweries)[8] = "Brewery_Name"
 
-#The following columns had NA values/missing data: ABV, IBU, and Styles(these were blank and Not N/A). To Tidy the data, we excluded those values from the dataset. We do not have a way to find those data points at this time. These were Explicitly missing. The value had a place but was simply just not recorded and thus had NA.
-#beersNbreweries = na.omit(beers_Breweries)
 
 ```
+
+
+#Missing Data
+
+The following variables had NA values for some of their observations: ABV, IBU. 
+The Styles variable also had blank values for a few observations. We did not remove the NA values because doing so would have removed a large portion of the data. Particularly, the IBU variable had 1005 observations with NA. The NA values were handled on a case by case basis depending on what the EDA required.
+
 ```{r}
-Use this
 
-#EDA with Missing data
+#EDA with Missing data. Understanding the missing data within the dataset.
 
-NA_Table = beers_Breweries %>% filter(is.na(IBU)| is.na(ABV))
+ObservationsWithNA = beers_Breweries %>% filter(is.na(IBU)| is.na(ABV))
 
-view(NA_Table)
-
-
-
-NA_Table %>% ggplot(mapping = aes(x = State, fill = ABV))+
-  geom_histogram(stat = "count")
-
-
-
-NA_Table %>% ggplot(mapping = aes(x = State, y = ABV, fill = ABV))+
+ObservationsWithNA %>% ggplot(mapping = aes(x = State, y = ABV))+
   geom_bar(stat = "identity")
-
-
-
-meanperstate = beers_Breweries %>% filter(!is.na(ABV))
-
-#Plot a bar chart
-ABV_Median_State = meanperstate %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
-
-ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
-  geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
-  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ 
-  theme_tufte()+
-  ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Median")
-
-
-meanperstateIBU = beers_Breweries %>% filter(!is.na(IBU))
-
-IBU_Median_State = meanperstateIBU %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
-
-
-#Plot a bar chart
-  IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_Median )) +
-  geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+ 
-  geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+
-  theme_tufte()+
-  ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Median")
 
 ```
 
@@ -150,31 +113,28 @@ IBU_Median_State = meanperstateIBU %>% group_by(State) %>% dplyr::summarize(IBU_
 
 ```{r}
 
-
-
-
-
-
-#Compute the median the ABV (alcohol content) for each state.
+# Compute the median the ABV (alcohol content) for each state. To calculate the Median, we removed the NA values by filtering them from the beers_Breweries combined dataset.
 ABV_Median_State = beers_Breweries %>% filter(!is.na(ABV)) %>% group_by(State) %>% dplyr::summarize(ABV_Median = median(ABV), count = n())
 
-#Plot a bar chart
+
+# Visually display the median of the ABV variable.
 ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
-  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ 
+  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.8)+ 
   theme_tufte()+
-  ggtitle("Median ABV per State") + xlab("STATES") + ylab ("ABV Median")
+  ggtitle("ABV Median by State") + xlab("STATES") + ylab ("Median")
 
-#Compute the median IBU (International bitterness Unit)
+
+# Compute the median IBU (International bitterness Unit). To calculate the Median, we removed the NA values by filtering them from the beers_Breweries combined dataset.
 IBU_Median_State = beers_Breweries %>% filter(!is.na(IBU)) %>% group_by(State) %>% dplyr::summarize(IBU_Median = median(IBU), count= n())
 
 
-#Plot a bar chart
+# Visually display the median of the ABV variable.
   IBU_Median_State %>% ggplot(mapping = aes(x= State, y = IBU_Median )) +
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+ 
   geom_text(aes(State, IBU_Median+1, label = IBU_Median), data = IBU_Median_State, size=4)+
   theme_tufte()+
-  ggtitle("Median IBU per State") + xlab("STATES") + ylab ("IBU Median")
+  ggtitle("IBU Median by State") + xlab("STATES") + ylab ("Median")
   
 ```
 
@@ -183,30 +143,25 @@ IBU_Median_State = beers_Breweries %>% filter(!is.na(IBU)) %>% group_by(State) %
 # Which state has the maximum alcoholic (ABV) beer? Which state has the most bitter (IBU) beer?
 
 ```{r}
+
+# create a new variable that has a dataframe with no NA values for the ABV variable.
+ABVcleanCombined = beers_Breweries %>% filter(!is.na(ABV))
+
+
 # Finds the Max number within the ABV variable and the row number (index) in which the maximum ABV number may be found.
-z = beers_Breweries %>% filter(!is.na(ABV))
+ABVcleanCombined %>% summarize(maxABV = max(ABV), state = State[which(ABV == max(ABV))])
 
-state_Max_ABV = beers_Breweries %>% filter(!is.na(ABV)) %>% summarise(Max_ABV= max(ABV), row_Index = which.max(ABV))
-state_Max_ABV # The maximum ABV is 0.128 and can be found in row 369.
+# The State with the maximum highest ABV beer is Colorado (CO) with a Max ABV of 0.128.
 
-#Use the index (8) from above to find the State that coincides with the maximum ABV. 
-beers_Breweries %>% filter(!is.na(ABV)) %>% beers_Breweries
-z$State[369]
 
-view(z)
-#The State is Colorado (CO).
+# Create a new variable that has a dataframe with no NA values for the IBU variable.
+IBUcleanCombined = beers_Breweries %>% filter(!is.na(IBU))
 
 # Find the Max number within the IBU variable and the row number (index) in which the maximum IBU number may be found.
 
-state_Max_IBU = beers_Breweries %>% filter(!is.na(IBU)) %>% summarise(Max_IBU= max(IBU), row_Index = which.max(IBU))
-state_Max_IBU # The maximum IBU is 138 and can be found in row 1134.
+IBUcleanCombined %>% summarize(maxIBU = max(IBU), state = State[which(IBU == max(IBU))])
 
-#Uses the row number (1134) from above to find the State that coincides with the maximum IBU.
-beers_Breweries$State[1134]
-#The State is Oregon (OR).
-
-p = beers_Breweries %>% filter(!is.na(IBU))
-p$State[1134]
+# The State with the most bitter beer is Oregon (OR) with a Max IBU of 138.
 
 ```
 
@@ -214,21 +169,21 @@ p$State[1134]
 
 ```{r}
 
-#Statistics of the ABV variable
-beersNbreweries %>%
-  group_by(State) %>%
-  dplyr::summarize(mean = mean(ABV), sd = sd(ABV), median = median(ABV), range = max(ABV)- min(ABV), IQR = IQR(ABV), count = n())
-
-#Box Plot to show the Statistics of the ABV variable.
-beersNbreweries %>% 
+# Below is a Box Plot to show the statistics of the ABV variable.
+ABVcleanCombined %>% 
   ggplot(mapping = aes(x = ABV))+
   geom_boxplot(color = "darkgrey", fill = "darkslategray4")+
   ggtitle("ABV Variable Box Plot")+
   theme_tufte()
 
+# The Median is 0.057
+# Quartile 3 is much larger than Quartile 2
+# Outliers at 0.125
 
-# I Created a Histogram of ABV to see its distribution.
-beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
+
+
+# Below is a Histogram of ABV to see its distribution.
+ABVcleanCombined %>% ggplot(mapping = aes(x = ABV))+
   geom_histogram(color = "darkgrey", fill = "darkslategray4")+
   theme_tufte()+
   ggtitle("Histogram of ABV") + xlab("ABV Values") + ylab ("Count")
@@ -242,19 +197,18 @@ beersNbreweries %>% ggplot(mapping = aes(x = ABV))+
 # Is there an apparent relationship between the bitterness of the beer and its alcoholic content? Draw a scatter plot.  Make your best judgment of a relationship and EXPLAIN your answer
 
 ```{r}
+
+# In this Instance we removed all the data Na values from the IBU and ABV variables. This allows us to have a true reading on the IBU vs ABV comparison.
+beersNBreweriesClean = na.omit (beers_Breweries)
+
 #Scatter Plot showing the distribution of the ABV versus the IBU variables.
 
-#beersNbreweries$Ounces = numeric(beersNbreweries$Ounces)
-#str(beersNbreweries)
-
-g = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces)) +
-  geom_point()+
-  theme_tufte()+
+beersNBreweriesClean %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter")) +
+  geom_point(color = "brown")+
+  theme_economist()+
   xlab("ABV") + ylab("IBU")+
-  ggtitle("Relationship between bitterness and Alcohol content")+
-  geom_smooth(aes(x = ABV, y = IBU))
-
-ggplotly(g)
+  ggtitle("IBU vs ABV Relationship")+
+  geom_smooth(aes(x = ABV, y = IBU),method = lm)
 
 
 # The relationship between the ABV and IBU is positively linear (0.671). As the ABV increases we can see that IBU also increases. There is a cluster around the 0.050 ABV value, indicating that a great majority of beers try to stay near that number.In our data set most of the ABV data was below the 0.100 ABV value. There were only two beers that went above that number.However, the IBU values was not as high as expected given that the trend is linear. These two beers were in the States of Indiana and Kentucky. 
@@ -273,13 +227,27 @@ ggplotly(g)
 
 (grep("India/Pale/Ale", beersNbreweries$Beer_Name, ignore.case = TRUE))
 
+View(beers_Breweries)
 
+beers_Breweries$IPA = beers_Breweries %>% filter(beers_Breweries$Style == "India Pale Ale"| beers_Breweries$Style == "IPA")
 
-x = beersNbreweries %>% filter(!beersNbreweries$Beer_Name == "India Pale Ale")
-x
-df = which(grepl("\\bAle\\b", x$Beer_Name))# Add border things or use ^ to get True "Ale" from the names.
+df = which(grepl("\\bAle\\b", x$Beer_Style))# Add border things or use ^ to get True "Ale" from the names.
 df
 Train = beersNbreweries[df, ]
+
+#Step 1
+beers_Breweries$IPAorOther = "Non-Ale"
+
+#Step 2 find any beer with the word Ale in the style
+beers_Breweries$IPAorOther[grepl("\\bAle\\b", beers_Breweries$Style,)] = "Other-Ale"
+
+#Step 3 find the IPAs
+
+#Step 4 Knn.cv model. Find the ideal 
+
+
+summary(beers_Breweries$IPAorOther)
+beers_Breweries$IPAorOther = as.character(beers_Breweries$IPAorOther)
 
 
 set.seed(6)
@@ -299,7 +267,7 @@ confusionMatrix(table(classifications,test$Style))
 
 ```
 
-
+# Provide Insights
 
 ```{r}
 # EDA
@@ -321,22 +289,6 @@ view(beersByBrewery)
 ```
 
 
-#Viewing Library
-
-```{r}
-
-View(breweries_Count_State)
-view(breweries)
-view(beers)
-view(beersByBrewery)
-View(beers_Breweries)
-view(beersNbreweries)
-view(z)
-view(p)
-view(beers_Breweries)
-
-```
-
 
 ```{r}
 beersNbreweries$Ounces = factor(beersNbreweries$Ounces)
@@ -345,12 +297,13 @@ beersNbreweries$Ounces = factor(beersNbreweries$Ounces)
 
 #str(beersNbreweries)
 
-c = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces, size = 2)) +
+c = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces, size = 1)) +
   geom_point()+
   theme_tufte()+
   xlab("ABV") + ylab("IBU")+
-  ggtitle("Relationship between bitterness and Alcohol content")
-  #geom_smooth(aes(x = ABV, y = IBU))
+  ggtitle("Relationship between bitterness and Alcohol content")+
+  geom_smooth(aes(x = ABV, y = IBU),method = lm)+
+  facet_wrap(~Ounces)
 
 ggplotly(c)
 
