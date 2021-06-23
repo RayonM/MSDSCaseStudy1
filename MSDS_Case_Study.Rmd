@@ -31,8 +31,9 @@ library(dplyr)
 library(stringi)
 library(stringr)
 library(class)
-library(usmap)
-install.packages("usmap")
+#library(usmap)
+library(e1071)
+#install.packages("usmap")
 ```
 
 #Cookbook
@@ -122,15 +123,7 @@ ABV_Median_State = beers_Breweries %>% filter(!is.na(ABV)) %>% group_by(State) %
 # Visually display the median of the ABV variable.
 ABV_Median_State %>% ggplot(mapping = aes(x= State, y = ABV_Median)) +
   geom_bar(stat = "identity",color = "darkgrey", fill = "darkslategray4")+
-<<<<<<< HEAD
-<<<<<<< HEAD
-  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.5)+ #Added labels to the chart
-=======
-  geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.3)+ 
->>>>>>> 5d8703a18cc2b263edb0d5be4eabaf7a087ec393
-=======
   geom_text(aes(State, ABV_Median+0.002, label = ABV_Median), data = ABV_Median_State, size=2.8)+ 
->>>>>>> 0feab62d3dde6218579e18c293dcd1d51de7215f
   theme_tufte()+
   ggtitle("ABV Median by State") + xlab("STATES") + ylab ("Median")
 
@@ -231,48 +224,67 @@ beersNBreweriesClean %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitte
 
 
 ```{r}
-#Due June 26th
-#Use Knn.cv
 
-(grep("India/Pale/Ale", beersNbreweries$Beer_Name, ignore.case = TRUE))
+# Step 1 - Classify all beers that are not Ale as "Non-Ale". 
+beersNBreweriesClean$IPAorOther = "Non-Ale"
 
-View(beers_Breweries)
+# Step 2 Classify all beers that are not Ale as "Other-Ale".
+beersNBreweriesClean$IPAorOther[grepl("\\bAle\\b", beersNBreweriesClean$Style,)] = "Other-Ale"
 
-beers_Breweries$IPA = beers_Breweries %>% filter(beers_Breweries$Style == "India Pale Ale"| beers_Breweries$Style == "IPA")
+# Step 3 Find all beers that are IPAs or India Pale Ales and Label them as IPA Ale
+beersNBreweriesClean$IPAorOther[grepl("\\bIPA\\b", beersNBreweriesClean$Style,)] = "IPA"
 
-df = which(grepl("\\bAle\\b", x$Beer_Style))# Add border things or use ^ to get True "Ale" from the names.
-df
-Train = beersNbreweries[df, ]
-
-#Step 1
-beers_Breweries$IPAorOther = "Non-Ale"
-
-#Step 2 find any beer with the word Ale in the style
-beers_Breweries$IPAorOther[grepl("\\bAle\\b", beers_Breweries$Style,)] = "Other-Ale"
-
-#Step 3 find the IPAs
-
-#Step 4 Knn.cv model. Find the ideal 
-
-
-summary(beers_Breweries$IPAorOther)
-beers_Breweries$IPAorOther = as.character(beers_Breweries$IPAorOther)
-
+# Step 4 Knn.cv model. Find the ideal k number
+newdataset = beersNBreweriesClean %>% filter(beersNBreweriesClean$IPAorOther !="Non-Ale" )
 
 set.seed(6)
 splitPerc = .75
-trainIndices = sample(1:dim(Train)[1],round(splitPerc * dim(Train)[1]))
+trainIndices = sample(1:dim(newdataset)[1],round(splitPerc * dim(newdataset)[1]))
 
-traindata = Train[trainIndices,]
-test = Train[-trainIndices,]
+train = newdataset[trainIndices,]
+test = newdataset[-trainIndices,]
 
 # k = 3
-classifications = knn.cv(traindata[,c(4,5)],test[,c(4,5)],Train$Style, prob = TRUE, k = 3)
+classifications = knn(train[,c(4,5)],test[,c(4,5)],train$IPAorOther, prob = TRUE, k = 5)
+
+table(classifications,test$IPAorOther)
+
+confusionMatrix(table(classifications,test$IPAorOther))
 
 
-table(classifications,test$Style)
+set.seed(6)
+splitPercentage = .70
+iterations = 100
+num_k = 50
 
-confusionMatrix(table(classifications,test$Style))
+masterAcc = matrix(nrow = iterations, ncol = num_k)
+
+for(i in 1:iterations)
+{
+  trainIndices = sample(1:dim(newdataset)[1],round(splitPercentage * dim(newdataset)[1]))
+  train = newdataset[trainIndices,]
+  test = newdataset[-trainIndices,]
+
+  for(j in 1:num_k)
+  {
+    classifications = knn(train[,c(4,5)],test[,c(4,5)],train$IPAorOther, prob = TRUE, k = j)
+    table(classifications,test$IPAorOther)
+    CM = confusionMatrix(table(classifications,test$IPAorOther))
+    masterAcc[i,j] = CM$overall[1]
+  }
+  
+}
+
+MeanAcc = colMeans(masterAcc)
+
+plot(seq(1,num_k,1),MeanAcc, type = "l")
+
+which.max(MeanAcc)
+max(MeanAcc)
+
+
+
+
 
 ```
 
