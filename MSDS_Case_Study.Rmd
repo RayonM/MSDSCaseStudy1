@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-Good day Mr. CEO & CFO. Throughout this document, I've provided responses to your questions regarding the Exploratory Data Analysis (EDA) as well as highlighted some key findings that may pique your interest. The analysis was done using the source files of the Beers and Breweries data. 
+Good day Mr. Michel Doukeris & Nick Caton. Throughout this document, I've provided responses to your questions regarding the Exploratory Data Analysis (EDA) as well as highlighted some key findings that may pique your interest. This (inquiry) primarily focuses on the two main measurements of beer composition, Alcohol by Volume (ABV) and International Bitterness Units (IBU) derived from the Beers and Breweries datasets that you provided.  
 
 
 ```{r}
@@ -31,7 +31,8 @@ library(dplyr)
 library(stringi)
 library(stringr)
 library(class)
-
+library(usmap)
+install.packages("usmap")
 ```
 
 #Cookbook
@@ -70,6 +71,7 @@ breweries_Count_by_State %>% ggplot(mapping = aes(x = State, y = Count)) +
   ggtitle("Breweries per State")+
   theme_tufte()
  
+
 ```
 
 # Merge beer data with the breweries data. Print the first 6 observations and the last six observations to check the merged file.
