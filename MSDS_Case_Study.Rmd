@@ -190,7 +190,6 @@ ABVcleanCombined %>%
 # Quartile 3 is much larger than Quartile 2
 # Outliers at 0.125
 
-View(ABVcleanCombined)
 
 # Below is a Histogram of ABV to see its distribution.
 ABVcleanCombined %>% ggplot(mapping = aes(x = ABV))+
