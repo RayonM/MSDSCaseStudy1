@@ -225,45 +225,35 @@ beersNBreweriesClean %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitte
 
 ```{r}
 
-# Step 1 - Classify all beers that are not Ale as "Non-Ale". 
+# Step 1 - Classify all beers as "Non-Ale". 
 beersNBreweriesClean$IPAorOther = "Non-Ale"
 
-# Step 2 Classify all beers that are not Ale as "Other-Ale".
+# Step 2 Classify all beers that are Ale as "Other-Ale".
 beersNBreweriesClean$IPAorOther[grepl("\\bAle\\b", beersNBreweriesClean$Style,)] = "Other-Ale"
 
 # Step 3 Find all beers that are IPAs or India Pale Ales and Label them as IPA Ale
 beersNBreweriesClean$IPAorOther[grepl("\\bIPA\\b", beersNBreweriesClean$Style,)] = "IPA"
 
-# Step 4 Knn.cv model. Find the ideal k number
-newdataset = beersNBreweriesClean %>% filter(beersNBreweriesClean$IPAorOther !="Non-Ale" )
+# Step 4 Find the ideal k number. 
+# Loop for many ks and the average of many training/test partition. 
 
-set.seed(6)
-splitPerc = .75
-trainIndices = sample(1:dim(newdataset)[1],round(splitPerc * dim(newdataset)[1]))
+AleOnlyBeers = beersNBreweriesClean %>% filter(beersNBreweriesClean$IPAorOther !="Non-Ale" )
 
-train = newdataset[trainIndices,]
-test = newdataset[-trainIndices,]
 
-# k = 3
-classifications = knn(train[,c(4,5)],test[,c(4,5)],train$IPAorOther, prob = TRUE, k = 5)
-
-table(classifications,test$IPAorOther)
-
-confusionMatrix(table(classifications,test$IPAorOther))
-
+#Loop for many ks and the average of many training/test partition. 
 
 set.seed(6)
 splitPercentage = .70
-iterations = 100
+iterations = 500
 num_k = 50
 
 masterAcc = matrix(nrow = iterations, ncol = num_k)
 
 for(i in 1:iterations)
 {
-  trainIndices = sample(1:dim(newdataset)[1],round(splitPercentage * dim(newdataset)[1]))
-  train = newdataset[trainIndices,]
-  test = newdataset[-trainIndices,]
+  trainIndices = sample(1:dim(AleOnlyBeers)[1],round(splitPercentage * dim(AleOnlyBeers)[1]))
+  train = AleOnlyBeers[trainIndices,]
+  test = AleOnlyBeers[-trainIndices,]
 
   for(j in 1:num_k)
   {
@@ -282,10 +272,16 @@ plot(seq(1,num_k,1),MeanAcc, type = "l")
 which.max(MeanAcc)
 max(MeanAcc)
 
+# The most ideal K value for this dataset is 5.
 
+# Run the KNN model using K = 5 to get the final classifications.  
+  classifications = knn(train[,c(4,5)],test[,c(4,5)],train$IPAorOther, prob = TRUE, k = 5)
+  table(classifications,test$IPAorOther)
+  confusionMatrix(table(classifications,test$IPAorOther))
 
-
-
+# The accuracy of the KNN model was 84%. This model could use the IBU and ABV as predictors to determine if a beer would classify as an IPA or Other Ale Beer and would do so with a success rate of 84%!
+# Other statistics of interest were a sensitivity of 80% and Specificity of 87%.
+  
 ```
 
 # Provide Insights
