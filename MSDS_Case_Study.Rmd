@@ -272,6 +272,7 @@ plot(seq(1,num_k,1),MeanAcc, type = "l")
 which.max(MeanAcc)
 max(MeanAcc)
 
+
 # The most ideal K value for this dataset is 5.
 
 # Run the KNN model using K = 5 to get the final classifications.  
@@ -281,53 +282,43 @@ max(MeanAcc)
 
 # The accuracy of the KNN model was 84%. This model could use the IBU and ABV as predictors to determine if a beer would classify as an IPA or Other Ale Beer and would do so with a success rate of 84%!
 # Other statistics of interest were a sensitivity of 80% and Specificity of 87%.
-  
 ```
 
-# Provide Insights
+
+# Provide Insights about the data
 
 ```{r}
 # EDA
-# How many Beers are produced by each Brewery? What opportunity exist within each Brewery?
+# How many Beers are produced by each Brewery? Are there opportunities within each Brewery?
 
-beersByBrewery = dplyr::count(beers_Breweries,Brewery_id)
+beersByBrewery = dplyr::count(beers_Breweries,Brewery_Name)
 
 #Create a plot to visualize the number of breweries per State.
-beersByBrewery %>% ggplot(mapping = aes(x = Brewery_id, y = n)) +
-  geom_bar(stat = "identity",  fill = "darkslategray4" )+
-  xlab("Brewery Id")  + ylab("Count")+
-  ggtitle("Beers per Brewery")+
-  theme_tufte()
-
-view(beersByBrewery)
-
-#beersNbreweries %>% select(ABV, IBU) %>% ggpairs()
+beersByBrewery %>% ggplot(mapping = aes(x = n)) +
+  geom_histogram(fill = "darkslategray4" )+
+  xlab("Brewery Id")+
+  ggtitle("Histogram of Beers manufactored by a Brewery")+
+  theme_economist()
 
 ```
 
-
+#EDA
 
 ```{r}
-beersNbreweries$Ounces = factor(beersNbreweries$Ounces)
 
-#beersNbreweries$Ounces = numeric(beersNbreweries$Ounces)
+beersNBreweriesClean$Ounces = factor(beersNBreweriesClean$Ounces)
 
-#str(beersNbreweries)
 
-c = beersNbreweries %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces, size = 1)) +
+ggplotly (beersNBreweriesClean %>% ggplot(mapping = aes(x = ABV, y = IBU, position ="jitter", fill = Ounces)) +
   geom_point()+
-  theme_tufte()+
+  theme_economist()+
   xlab("ABV") + ylab("IBU")+
-  ggtitle("Relationship between bitterness and Alcohol content")+
+  ggtitle("IBU vs ABV Relationship by Ounces")+
   geom_smooth(aes(x = ABV, y = IBU),method = lm)+
-  facet_wrap(~Ounces)
+  facet_wrap(~Ounces))
 
-ggplotly(c)
 
-r = count(beersNbreweries, Ounces)
-
-z = count(beers, Ounces)
-
+# The data was saturated with 12 and 16 ounces beers once the IBU and ABV NA values were removed. 
 
 ```
 
