@@ -239,7 +239,6 @@ beersNBreweriesClean$IPAorOther[grepl("\\bIPA\\b", beersNBreweriesClean$Style,)]
 
 AleOnlyBeers = beersNBreweriesClean %>% filter(beersNBreweriesClean$IPAorOther !="Non-Ale" )
 
-
 #Loop for many ks and the average of many training/test partition. 
 
 set.seed(6)
@@ -283,6 +282,29 @@ max(MeanAcc)
 # The accuracy of the KNN model was 84%. This model could use the IBU and ABV as predictors to determine if a beer would classify as an IPA or Other Ale Beer and would do so with a success rate of 84%!
 # Other statistics of interest were a sensitivity of 80% and Specificity of 87%.
 ```
+# Standardize the IBU and ABV variables so that the the Euclidean Distance is better calculated.
+
+```{r}
+# Within this dataset we Scaled the IBU and ABV variables.
+
+AleOnlyBeers1 = data.frame(Brewery_id = AleOnlyBeers$Brewery_id, Beer_Name = AleOnlyBeers$Beer_Name, ZABV = scale(AleOnlyBeers$ABV),ZIBU = scale(AleOnlyBeers$IBU), Style = AleOnlyBeers$Style, Ounces = AleOnlyBeers$Ounces, Brewery_Name = AleOnlyBeers$Brewery_Name, City = AleOnlyBeers$City, State = AleOnlyBeers$State, IPAorOther = AleOnlyBeers$IPAorOther )
+
+  trainIndices_1 = sample(1:dim(AleOnlyBeers1)[1],round(splitPercentage * dim(AleOnlyBeers1)[1]))
+  train_1 = AleOnlyBeers1[trainIndices_1,]
+  test_1 = AleOnlyBeers1[-trainIndices_1,]
+  
+  classifications = knn(train_1[,c(3,4)],test_1[,c(3,4)],train_1$IPAorOther, prob = TRUE, k = 5)
+  table(classifications,test_1$IPAorOther)
+  confusionMatrix(table(classifications,test_1$IPAorOther))
+
+# The accuracy of the KNN model was 89%. This model could use the IBU and ABV as predictors to determine if a beer would classify as an IPA or Other Ale Beer and would do so with a accuracy rate of 89%!
+# Other statistics of interest were a sensitivity of 85% and Specificity of 93%.
+  
+# Using the Standardized dataset we saw a better Accuracy, Sensitivity and Specificity statistics.
+
+```
+
+
 
 
 # Provide Insights about the data
@@ -295,10 +317,12 @@ beersByBrewery = dplyr::count(beers_Breweries,Brewery_Name)
 
 #Create a plot to visualize the number of breweries per State.
 beersByBrewery %>% ggplot(mapping = aes(x = n)) +
-  geom_histogram(fill = "darkslategray4" )+
-  xlab("Brewery Id")+
-  ggtitle("Histogram of Beers manufactored by a Brewery")+
-  theme_economist()
+  geom_bar(fill = "darkslategray4" )+
+  xlab("Number of Beers Produced") + ylab("Breweries Count")+
+  ggtitle("Beers manufactured per Brewery")+
+  theme_tufte()
+
+# Based on the Histogram the distribution was right skewed. Based on the chart most of the breweries only produced 
 
 ```
 
@@ -321,6 +345,21 @@ ggplotly (beersNBreweriesClean %>% ggplot(mapping = aes(x = ABV, y = IBU, positi
 # The data was saturated with 12 and 16 ounces beers once the IBU and ABV NA values were removed. 
 
 ```
+
+```{r}
+# Compare the Median values of the IBU and ABV per State.
+
+IBU_ABV_MedianCombined = merge(IBU_Median_State, ABV_Median_State, by = "State")
+
+ggplotly (IBU_ABV_MedianCombined %>% ggplot(aes(x =IBU_Median, y = ABV_Median, position = "jitter", fill = State))+
+  geom_point()+
+  theme_tufte())
+
+
+# We observed that the Correlation dropped from the previous observation to a correlation of 0.282.
+
+```
+
 
 
 
